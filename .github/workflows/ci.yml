@@ -1,0 +1,44 @@
+name: Java CI with Gradle
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    # Додаємо змінні оточення для JVM
+    env:
+      # Обмежуємо пам'ять JVM, щоб залишити місце для Testcontainers (Docker)
+      # Пам'ятаєш про MaxRAMPercentage? В CI це критично.
+      _JAVA_OPTIONS: "-XX:MaxRAMPercentage=70.0"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4 # Оновив до v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'gradle' # Вбудоване кешування залежностей
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3 # Новіша версія екшену
+
+      - name: Build and Test with Gradle
+        run: ./gradlew build # Об'єднуємо build і test (build за замовчуванням запускає тести)
+
+      # Додатковий крок: якщо тести впадуть, ми побачимо звіти
+      - name: Upload Test Report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report
+          path: build/reports/tests/test
