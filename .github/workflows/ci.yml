@@ -36,7 +36,7 @@ jobs:
           # Допомагаємо Testcontainers знайти Docker сокет
           DOCKER_HOST: unix:///var/run/docker.sock
           # Якщо Ryuk (прибиральник) все одно видає помилку, розкоментуй це:
-          # TESTCONTAINERS_RYUK_DISABLED: "true"
+          TESTCONTAINERS_RYUK_DISABLED: "true"
         run: ./gradlew build
 
       # ЛОГІН ТУТ (після успішних тестів)
