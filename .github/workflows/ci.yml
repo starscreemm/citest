@@ -1,4 +1,5 @@
 name: CI
+
 on:
   push:
     branches: ["main"]
@@ -7,19 +8,37 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 21
           cache: gradle
 
-      - name: Run tests with SUDO
+      - name: Make Gradle Wrapper executable
+        run: chmod +x gradlew
+
+      # 1. Вирішуємо проблему IllegalStateException (рядок 277) на рівні ОС.
+      # Додаємо користувача в групу docker та відкриваємо сокет.
+      - name: Fix Docker Permissions
+        run: |
+          sudo usermod -aG docker $USER
+          sudo chmod 666 /var/run/docker.sock
+          docker info # Перевірка, що Docker доступний
+
+      # 2. Запуск тестів з максимальним рівнем діагностики та примусовими налаштуваннями.
+      - name: Run tests
         env:
-          # Примусово кажемо використовувати Unix-сокет
+          # Примусово кажемо Testcontainers, де шукати Docker
           DOCKER_HOST: unix:///var/run/docker.sock
           TESTCONTAINERS_RYUK_DISABLED: "true"
+          TESTCONTAINERS_CHECKS_DISABLE: "true"
+          # Твій щоденний ліміт пам'яті
           _JAVA_OPTIONS: "-XX:MaxRAMPercentage=70.0"
-        # Запускаємо через sudo. Це дає Java повний доступ до Docker-демона.
-        run: sudo ./gradlew clean test --no-daemon --info
+        # Запускаємо через sudo, щоб Java мала беззаперечний доступ до заліза
+        run: sudo -E ./gradlew clean test --no-daemon --info

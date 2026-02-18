@@ -12,12 +12,14 @@ import java.util.Map;
 @ContextConfiguration(initializers = TestContainersBase.Initializer.class)
 public abstract class TestContainersBase {
 
-    static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine")
-            .withDatabaseName("testdb")
-            .withUsername("test")
-            .withPassword("test");
+    static final PostgreSQLContainer<?> postgres;
 
     static {
+        System.setProperty("testcontainers.docker.client.strategy", "org.testcontainers.dockerclient.UnixSocketClientProviderStrategy");
+        postgres = new PostgreSQLContainer<>("postgres:16-alpine")
+                .withDatabaseName("testdb")
+                .withUsername("test")
+                .withPassword("test");
         postgres.start();
     }
 
