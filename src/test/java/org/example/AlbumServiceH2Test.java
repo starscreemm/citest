@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringJUnitConfig(classes = {TestH2Config.class, DataJpaCfg.class})
 @Sql(scripts = {"classpath:testcontainers/create-schema.sql", "classpath:testcontainers/add-nina.sql", "classpath:testcontainers/add-chuck.sql"})
-public class AlbumServiceTestH2 {
+public class AlbumServiceH2Test {
     private static final Logger logger = LoggerFactory.getLogger(AlbumServiceTest.class);
 
 
