@@ -32,7 +32,7 @@ jobs:
 
       # 2. ПРЕДЗАВАНТАЖЕННЯ ОБРАЗУ (щоб не зависало)
       - name: Pre-pull Postgres image
-        run: docker pull postgres:15-alpine
+        run: docker pull postgres:16-alpine
 
       # 3. ЗАПУСК ТЕСТІВ
       - name: Run tests
