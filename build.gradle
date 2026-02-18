@@ -9,24 +9,33 @@ repositories {
     mavenCentral()
 }
 
-dependencies {
-    implementation 'org.springframework:spring-aspects:6.2.11'
-    implementation 'org.springframework:spring-context:6.2.11'
-    implementation 'org.springframework.data:spring-data-jpa:3.4.2'
+ext {
+    springVersion = '6.2.11'
+    springDataVersion = '3.4.2'
+    hibernateVersion = '6.4.4.Final'
+    testcontainersVersion = '1.19.7'
+}
 
-    implementation 'org.hibernate:hibernate-core:6.3.1.Final'
+dependencies {
+    implementation "org.springframework:spring-aspects:$springVersion"
+    implementation "org.springframework:spring-context:$springVersion"
+    implementation "org.springframework.data:spring-data-jpa:$springDataVersion"
+
+    implementation "org.hibernate.orm:hibernate-core:$hibernateVersion"
     implementation 'org.postgresql:postgresql:42.6.0'
     implementation 'jakarta.persistence:jakarta.persistence-api:3.1.0'
     implementation 'com.zaxxer:HikariCP:5.1.0'
 
-    testImplementation 'org.springframework:spring-test:6.2.11'
-    testImplementation platform('org.testcontainers:testcontainers-bom:1.19.3')
-    testImplementation 'org.testcontainers:postgresql:1.19.3'
-    testImplementation 'org.testcontainers:junit-jupiter:1.19.3'
+    testImplementation platform("org.testcontainers:testcontainers-bom:$testcontainersVersion")
+    testImplementation "org.testcontainers:testcontainers"
+    testImplementation "org.testcontainers:postgresql"
+    testImplementation "org.testcontainers:junit-jupiter"
 
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    testImplementation "org.springframework:spring-test:$springVersion"
 }
 
 test {
