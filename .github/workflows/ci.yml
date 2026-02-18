@@ -1,65 +1,35 @@
-name: Java CI with Gradle
+name: CI
 
 on:
   push:
     branches: [ "main" ]
   pull_request:
-    branches: [ "main" ]
-
-permissions:
-  contents: read
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     env:
-      # Контроль пам'яті JVM в CI
-      _JAVA_OPTIONS: "-XX:MaxRAMPercentage=70.0"
+      TESTCONTAINERS_RYUK_DISABLED: true
 
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: 'gradle'
+          distribution: temurin
+          java-version: 21
+          cache: gradle
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
+      - name: Validate Docker
+        run: |
+          docker --version
+          docker ps
 
-      # Перевіряємо що Docker доступний (важливо для Testcontainers)
-      - name: Verify Docker
-        run: docker info
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
 
-      # Збірка + тести (Testcontainers працюватиме автоматично)
-      - name: Build and Test with Gradle
-        run: ./gradlew clean build --info
-
-      # Логін у Docker Hub (тільки якщо тести пройшли)
-      - name: Log in to Docker Hub
-        if: success()
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      # Білд і пуш Docker образу
-      - name: Build and push Docker image
-        if: success()
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: true
-          tags: starscreemm/my-spring-app:latest
-
-      # Якщо тест впав — можна завантажити репорт
-      - name: Upload Test Report
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-report
-          path: build/reports/tests/test
+      - name: Run tests
+        run: ./gradlew clean test --no-daemon
