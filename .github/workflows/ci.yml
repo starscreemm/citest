@@ -23,17 +23,25 @@ jobs:
       - name: Make Gradle Wrapper executable
         run: chmod +x gradlew
 
-      # 1. Попередньо завантажуємо образ, щоб тест не висів на етапі Pulling
+      # 1. Попередньо завантажуємо образ Postgres.
+      # Це виключає зависання тестів на етапі pull, яке ми бачили раніше.
       - name: Pre-pull Postgres image
         run: docker pull postgres:15-alpine
 
-      # 2. Запуск тестів з усіма необхідними прапорцями
+      # 2. Вирішуємо проблему з правами доступу.
+      # Іноді Docker сокет в CI належить root, і Java-процес його не бачить.
+      - name: Fix Docker Socket Permissions
+        run: sudo chmod 666 /var/run/docker.sock
+
+      # 3. Запуск тестів.
       - name: Run tests
         env:
+          # Явно вказуємо шлях до сокета для Testcontainers
           DOCKER_HOST: unix:///var/run/docker.sock
+          # Вимикаємо Ryuk (прибиральник), який найчастіше валить білд в CI
           TESTCONTAINERS_RYUK_DISABLED: "true"
+          # Вимикаємо зайві перевірки для прискорення старту
           TESTCONTAINERS_CHECKS_DISABLE: "true"
-          # Твій щоденний параметр для ліміту пам'яті
+          # Твій щоденний параметр ліміту пам'яті
           _JAVA_OPTIONS: "-XX:MaxRAMPercentage=70.0"
-        # Додаємо --info, щоб бачити, якщо щось піде не так
-        run: ./gradlew clean test --no-daemon
+        run: ./gradlew clean test --no-daemon --info
