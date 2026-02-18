@@ -1,5 +1,4 @@
 name: CI
-
 on:
   push:
     branches: ["main"]
@@ -8,35 +7,19 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 21
           cache: gradle
 
-      - name: Make Gradle Wrapper executable
-        run: chmod +x gradlew
-
-      # КЛЮЧОВИЙ КРОК: Зміна власника сокета на поточного користувача runner.
-      # Це надійніше, ніж просто chmod 666.
-      - name: Fix Docker Socket Ownership
-        run: |
-          sudo chown runner:docker /var/run/docker.sock
-          docker info
-
-      - name: Pre-pull Postgres image
-        run: docker pull postgres:15-alpine
-
-      - name: Run tests
+      - name: Run tests with SUDO
         env:
+          # Примусово кажемо використовувати Unix-сокет
           DOCKER_HOST: unix:///var/run/docker.sock
           TESTCONTAINERS_RYUK_DISABLED: "true"
           _JAVA_OPTIONS: "-XX:MaxRAMPercentage=70.0"
-        # Використовуємо --no-daemon, щоб уникнути проблем з пам'яттю
-        run: ./gradlew clean test --no-daemon
+        # Запускаємо через sudo. Це дає Java повний доступ до Docker-демона.
+        run: sudo ./gradlew clean test --no-daemon --info
