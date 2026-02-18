@@ -32,6 +32,8 @@ jobs:
 
       # Крок збірки та тестів
       - name: Build and Test with Gradle
+        env:
+          TESTCONTAINERS_RYUK_DISABLED: "true"
         run: ./gradlew build
 
       # ЛОГІН ТУТ (після успішних тестів)
