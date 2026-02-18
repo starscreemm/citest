@@ -23,23 +23,20 @@ jobs:
       - name: Make Gradle Wrapper executable
         run: chmod +x gradlew
 
-      # 1. ПРИМУСОВИЙ ДОСТУП ДО DOCKER
-      # Це вирішує проблему на рядку 277, відкриваючи сокет для Java
-      - name: Fix Docker Socket Permissions
+      # КЛЮЧОВИЙ КРОК: Зміна власника сокета на поточного користувача runner.
+      # Це надійніше, ніж просто chmod 666.
+      - name: Fix Docker Socket Ownership
         run: |
-          sudo chmod 666 /var/run/docker.sock
+          sudo chown runner:docker /var/run/docker.sock
           docker info
 
-      # 2. ПРЕДЗАВАНТАЖЕННЯ ОБРАЗУ (щоб не зависало)
       - name: Pre-pull Postgres image
-        run: docker pull postgres:16-alpine
+        run: docker pull postgres:15-alpine
 
-      # 3. ЗАПУСК ТЕСТІВ
       - name: Run tests
         env:
           DOCKER_HOST: unix:///var/run/docker.sock
           TESTCONTAINERS_RYUK_DISABLED: "true"
-          TESTCONTAINERS_CHECKS_DISABLE: "true"
-          # Твій щоденний параметр
           _JAVA_OPTIONS: "-XX:MaxRAMPercentage=70.0"
-        run: ./gradlew clean test --no-daemon --info
+        # Використовуємо --no-daemon, щоб уникнути проблем з пам'яттю
+        run: ./gradlew clean test --no-daemon

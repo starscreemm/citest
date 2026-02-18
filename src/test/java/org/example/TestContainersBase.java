@@ -1,26 +1,36 @@
 package org.example;
 
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.context.ApplicationContextInitializer;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.core.env.MapPropertySource;
+import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.util.Map;
 
-@Testcontainers
+// Ми вказуємо Spring, що треба використати наш ініціалізатор
+@ContextConfiguration(initializers = TestContainersBase.Initializer.class)
 public abstract class TestContainersBase {
 
-    @Container
-    static PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:16-alpine")
+    static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine")
             .withDatabaseName("testdb")
             .withUsername("test")
             .withPassword("test");
 
-    @DynamicPropertySource
-    static void configureProperties(DynamicPropertyRegistry registry) {
-        registry.add("jdbc.url", postgreSQLContainer::getJdbcUrl);
-        registry.add("jdbc.username", postgreSQLContainer::getUsername);
-        registry.add("jdbc.password", postgreSQLContainer::getPassword);
-        registry.add("jdbc.driverClassName", postgreSQLContainer::getDriverClassName);
+    static {
+        postgres.start();
+    }
+
+    // Спеціальний клас для чистого Spring, щоб прокинути налаштування
+    static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+        public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
+            MapPropertySource testcontainers = new MapPropertySource("testcontainers", Map.of(
+                    "jdbc.url", postgres.getJdbcUrl(),
+                    "jdbc.username", postgres.getUsername(),
+                    "jdbc.password", postgres.getPassword(),
+                    "jdbc.driverClassName", postgres.getDriverClassName()
+            ));
+            configurableApplicationContext.getEnvironment().getPropertySources().addFirst(testcontainers);
+        }
     }
 }
