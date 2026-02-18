@@ -38,7 +38,7 @@ jobs:
           # Вимикаємо Ryuk (прибиральник), який часто викликає IllegalStateException в CI
           TESTCONTAINERS_RYUK_DISABLED: "true"
         # Додаємо --info, щоб ти бачив деталі, якщо знову впаде
-        run: ./gradlew build --info
+        run: ./gradlew build
 
       # ЛОГІН (виконується тільки якщо тести пройшли)
       - name: Log in to Docker Hub
