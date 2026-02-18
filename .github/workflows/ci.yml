@@ -24,4 +24,11 @@ jobs:
         run: chmod +x gradlew
 
       - name: Run tests
+        env:
+          # ЦЕ КРИТИЧНО: Явно вказуємо шлях до сокета
+          DOCKER_HOST: unix:///var/run/docker.sock
+          # Вимикаємо Ryuk, бо він часто не має прав на запуск у CI
+          TESTCONTAINERS_RYUK_DISABLED: "true"
+          # Твій щоденний параметр
+          _JAVA_OPTIONS: "-XX:MaxRAMPercentage=70.0"
         run: ./gradlew clean test --no-daemon

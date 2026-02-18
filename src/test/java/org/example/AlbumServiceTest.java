@@ -14,20 +14,20 @@ import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-//@SpringJUnitConfig(classes = {BaseCfg.class, DataJpaCfg.class})
-//@Sql(scripts = {"classpath:testcontainers/create-schema.sql", "classpath:testcontainers/add-nina.sql", "classpath:testcontainers/add-chuck.sql"})
+@SpringJUnitConfig(classes = {BaseCfg.class, DataJpaCfg.class})
+@Sql(scripts = {"classpath:testcontainers/create-schema.sql", "classpath:testcontainers/add-nina.sql", "classpath:testcontainers/add-chuck.sql"})
 public class AlbumServiceTest extends TestContainersBase {
     private static final Logger logger = LoggerFactory.getLogger(AlbumServiceTest.class);
 
-//
-//    @Autowired
-//    private AlbumService albumService;
 
-//    @Test
-//    void testFindWithReleaseDateGreaterThan() {
-//        var albums = albumService.findWithReleaseDateGreaterThan(LocalDate.of(2000, 1, 1))
-//                .peek(a -> logger.info(a.toString())).toList();
-//        assertEquals(3, albums.size());
-//    }
+    @Autowired
+    private AlbumService albumService;
+
+    @Test
+    void testFindWithReleaseDateGreaterThan() {
+        var albums = albumService.findWithReleaseDateGreaterThan(LocalDate.of(2000, 1, 1))
+                .peek(a -> logger.info(a.toString())).toList();
+        assertEquals(3, albums.size());
+    }
 
 }

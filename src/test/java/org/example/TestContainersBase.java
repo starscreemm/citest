@@ -7,20 +7,20 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 
-//@Testcontainers
+@Testcontainers
 public abstract class TestContainersBase {
 
-//    @Container
-//    static PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:16-alpine")
-//            .withDatabaseName("testdb")
-//            .withUsername("test")
-//            .withPassword("test");
+    @Container
+    static PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:16-alpine")
+            .withDatabaseName("testdb")
+            .withUsername("test")
+            .withPassword("test");
 
-//    @DynamicPropertySource
-//    static void configureProperties(DynamicPropertyRegistry registry) {
-//        registry.add("jdbc.url", postgreSQLContainer::getJdbcUrl);
-//        registry.add("jdbc.username", postgreSQLContainer::getUsername);
-//        registry.add("jdbc.password", postgreSQLContainer::getPassword);
-//        registry.add("jdbc.driverClassName", postgreSQLContainer::getDriverClassName);
-//    }
+    @DynamicPropertySource
+    static void configureProperties(DynamicPropertyRegistry registry) {
+        registry.add("jdbc.url", postgreSQLContainer::getJdbcUrl);
+        registry.add("jdbc.username", postgreSQLContainer::getUsername);
+        registry.add("jdbc.password", postgreSQLContainer::getPassword);
+        registry.add("jdbc.driverClassName", postgreSQLContainer::getDriverClassName);
+    }
 }
