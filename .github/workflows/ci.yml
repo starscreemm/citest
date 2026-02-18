@@ -23,12 +23,17 @@ jobs:
       - name: Make Gradle Wrapper executable
         run: chmod +x gradlew
 
+      # 1. Попередньо завантажуємо образ, щоб тест не висів на етапі Pulling
+      - name: Pre-pull Postgres image
+        run: docker pull postgres:15-alpine
+
+      # 2. Запуск тестів з усіма необхідними прапорцями
       - name: Run tests
         env:
-          # ЦЕ КРИТИЧНО: Явно вказуємо шлях до сокета
           DOCKER_HOST: unix:///var/run/docker.sock
-          # Вимикаємо Ryuk, бо він часто не має прав на запуск у CI
           TESTCONTAINERS_RYUK_DISABLED: "true"
-          # Твій щоденний параметр
+          TESTCONTAINERS_CHECKS_DISABLE: "true"
+          # Твій щоденний параметр для ліміту пам'яті
           _JAVA_OPTIONS: "-XX:MaxRAMPercentage=70.0"
+        # Додаємо --info, щоб бачити, якщо щось піде не так
         run: ./gradlew clean test --no-daemon
